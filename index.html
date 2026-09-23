@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>现场抽奖工具</title>
+    <link rel="stylesheet" href="./assets/styles.css" />
+  </head>
+  <body>
+    <main class="page">
+      <header class="topbar">
+        <div class="title-wrap">
+          <span class="hero-badge">轻量抽奖工具 · 当前浏览器独立保存</span>
+          <h1 id="activityTitle">现场抽奖</h1>
+          <p class="subtitle">
+            大转盘展示为等分视觉效果，实际中奖严格按设置概率随机抽取。设置保存在当前浏览器，清除浏览器数据后可能丢失。
+          </p>
+        </div>
+        <a class="icon-link" href="./settings.html" aria-label="前往抽奖设置">抽奖设置</a>
+      </header>
+
+      <section class="lottery-layout">
+        <article class="surface wheel-card">
+          <div class="wheel-area">
+            <div class="wheel-shell" aria-label="抽奖转盘">
+              <div class="wheel-pointer" aria-hidden="true"></div>
+              <canvas id="wheelCanvas" class="wheel" width="720" height="720"></canvas>
+              <div class="wheel-center">好运降临</div>
+            </div>
+            <button id="spinButton" class="btn" type="button">开始抽奖</button>
+            <p class="hint">
+              抽奖过程中会锁定按钮，避免重复点击。若系统启用了“减少动态效果”，动画将自动缩短或关闭。
+            </p>
+            <div class="result-strip">
+              <div>
+                <div class="result-label">最近一次结果</div>
+                <div class="result-value" id="recentResult">暂未抽奖</div>
+              </div>
+              <div class="muted" id="resultMeta">等待开始</div>
+            </div>
+          </div>
+        </article>
+
+        <aside class="surface info-card">
+          <div class="stats">
+            <div class="stat-box">
+              <span class="muted">奖品总概率</span>
+              <strong id="totalProbability">0.00%</strong>
+            </div>
+            <div class="stat-box">
+              <span class="muted">谢谢参与</span>
+              <strong id="thanksProbability">0.00%</strong>
+            </div>
+          </div>
+
+          <div class="inline-actions">
+            <a class="secondary-btn" href="./preview.html">预览页面</a>
+          </div>
+
+          <div style="margin-top: 18px;">
+            <div class="legend" id="legendList"></div>
+          </div>
+        </aside>
+      </section>
+
+      <section style="margin-top: 18px;" class="surface tips-card">
+        <div class="tips-list">
+          <div class="tip-item">
+            <strong>抽奖逻辑</strong>
+            <p>先按设置概率确定结果，再播放转盘动画，保证指针停在对应奖品上。每次抽奖彼此独立，不承诺固定次数内必中奖。</p>
+          </div>
+          <div class="tip-item">
+            <strong>配置保存</strong>
+            <p>设置仅保存在当前设备和当前浏览器，不会自动同步到手机或 iPad 上的其他浏览器。</p>
+          </div>
+          <div class="tip-item">
+            <strong>现场操作建议</strong>
+            <p>建议先在“抽奖设置”中完成奖品与概率确认，再切回本页进行现场展示与抽奖操作。</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div id="resultModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="surface modal-card">
+        <h2 class="modal-title" id="modalTitle">抽奖结果</h2>
+        <div class="modal-body" id="modalBody"></div>
+        <div class="modal-actions">
+          <button id="closeModalButton" type="button" class="btn">关闭</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast" aria-live="polite"></div>
+
+    <script type="module" src="./assets/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "lottery",
+  "version": "1.0.0",
+  "description": "一个纯前端、适合手机与 iPad 浏览器现场操作的轻量抽奖网页。配置保存在当前浏览器本地，不自动同步到其他设备。",
+  "scripts": {
+    "preview": "python3 -m http.server 8080 --bind 0.0.0.0",
+    "check:browser": "playwright test scripts/acceptance.spec.cjs --reporter=line"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "playwright": "^1.63.0"
+  }
+}

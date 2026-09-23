@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>抽奖设置</title>
+    <link rel="stylesheet" href="./assets/styles.css" />
+  </head>
+  <body>
+    <main class="page">
+      <header class="topbar">
+        <div class="title-wrap">
+          <span class="hero-badge">抽奖设置</span>
+          <h2>活动标题与奖品配置</h2>
+          <p class="subtitle">
+            奖品概率支持两位小数，所有奖品合计不能超过 100%。剩余概率会自动分配给“谢谢参与”。
+          </p>
+        </div>
+        <a class="icon-link" href="./index.html" aria-label="返回抽奖页">返回抽奖页</a>
+      </header>
+
+      <section class="settings-layout">
+        <article class="surface settings-card">
+          <div class="field-grid">
+            <div class="field">
+              <label for="titleInput">活动标题</label>
+              <input id="titleInput" type="text" maxlength="30" placeholder="请输入活动标题" />
+            </div>
+          </div>
+
+          <div class="inline-actions" style="margin-top: 16px;">
+            <button id="addPrizeButton" type="button" class="secondary-btn">新增奖品</button>
+          </div>
+
+          <div id="prizeList" class="settings-list" style="margin-top: 16px;"></div>
+
+          <div class="form-actions">
+            <button id="saveButton" type="button" class="btn">保存设置</button>
+            <button id="cancelButton" type="button" class="secondary-btn">取消修改</button>
+          </div>
+        </article>
+
+        <aside class="surface summary-card">
+          <div class="summary-grid">
+            <div class="summary-item">
+              <div class="summary-head">
+                <div class="summary-title">奖品总概率</div>
+              </div>
+              <div class="summary-highlight" id="summaryTotal">0.00%</div>
+              <p class="summary-desc">超过 100% 时禁止保存。</p>
+            </div>
+
+            <div class="summary-item">
+              <div class="summary-head">
+                <div class="summary-title">谢谢参与</div>
+              </div>
+              <div class="summary-highlight" id="summaryRemaining">0.00%</div>
+              <p class="summary-desc">当总概率为 100% 时，每次必定中奖。</p>
+            </div>
+
+            <div class="summary-item">
+              <div class="summary-head">
+                <div class="summary-title">当前说明</div>
+              </div>
+              <p class="summary-desc">
+                0% 的奖品会继续展示在转盘中，但实际不会被抽中；保存失败时会明确提示原因。
+              </p>
+            </div>
+          </div>
+
+          <div class="note-box" style="margin-top: 16px;">
+            设置保存在当前浏览器。手机和 iPad 分别配置、互不自动同步；清除浏览器数据后，配置可能丢失。
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <template id="prizeItemTemplate">
+      <section class="prize-item">
+        <div class="prize-head">
+          <div class="legend-name">
+            <span class="prize-index"></span>
+            <span class="prize-label">奖品</span>
+          </div>
+          <button type="button" class="danger-btn delete-prize">删除</button>
+        </div>
+        <div class="prize-fields">
+          <div class="field">
+            <label>奖品名称</label>
+            <input data-field="name" type="text" maxlength="24" placeholder="例如：一等奖" />
+          </div>
+          <div class="textarea-field">
+            <label>奖品说明</label>
+            <textarea data-field="description" rows="3" maxlength="120" placeholder="例如：品牌蓝牙耳机 1 份"></textarea>
+          </div>
+          <div class="field">
+            <label>中奖概率</label>
+            <div class="probability-input">
+              <input data-field="probability" type="number" min="0" max="100" step="0.01" inputmode="decimal" placeholder="0.00" />
+              <span>%</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </template>
+
+    <div id="toast" class="toast" aria-live="polite"></div>
+
+    <script type="module" src="./assets/settings.js"></script>
+  </body>
+</html>
