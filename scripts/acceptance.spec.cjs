@@ -40,9 +40,11 @@ test("视觉检查：手机与 iPad 三种视口", async ({ page }) => {
   await clearStorage(page);
 
   const cases = [
-    { name: "phone-390x844", width: 390, height: 844 },
-    { name: "ipad-820x1180", width: 820, height: 1180 },
-    { name: "ipad-1180x820", width: 1180, height: 820 },
+    { name: "iphone-15-pro", width: 393, height: 852 },
+    { name: "android-normal", width: 360, height: 800 },
+    { name: "android-large", width: 412, height: 915 },
+    { name: "ipad-portrait", width: 820, height: 1180 },
+    { name: "ipad-landscape", width: 1180, height: 820 },
   ];
 
   for (const item of cases) {
@@ -54,7 +56,7 @@ test("视觉检查：手机与 iPad 三种视口", async ({ page }) => {
     expect(indexOverflow.hasHorizontalOverflow).toBeFalsy();
     await saveScreenshot(page, `${item.name}-index.png`);
 
-    if (item.name === "phone-390x844") {
+    if (item.name === "iphone-15-pro") {
       await page.click("#spinButton");
       await expect(page.locator("#resultModal.show")).toBeVisible();
       await expect(page.locator("#modalBody")).not.toBeEmpty();
@@ -72,19 +74,20 @@ test("视觉检查：手机与 iPad 三种视口", async ({ page }) => {
 
 test("配置更新：保存、取消、后退与刷新保留", async ({ page }) => {
   await clearStorage(page);
-  await setViewport(page, 390, 844);
+  await setViewport(page, 393, 852);
 
   await page.goto(`${baseURL}/index.html`);
   await expect(page.locator("#activityTitle")).toHaveText("韩梓墨专属抽奖");
 
-  await page.click('a[href="./settings.html"]');
+  // 首页已经移除设置入口，改为直接通过 URL 导航测试
+  await page.goto(`${baseURL}/settings.html`);
   await page.fill("#titleInput", "取消不会生效");
   await page.fill('[data-field="name"]', "取消测试奖品");
   await page.click("#cancelButton");
   await expect(page).toHaveURL(/index\.html$/);
   await expect(page.locator("#activityTitle")).toHaveText("韩梓墨专属抽奖");
 
-  await page.click('a[href="./settings.html"]');
+  await page.goto(`${baseURL}/settings.html`);
   await page.fill("#titleInput", "春季抽奖会");
   await page.locator('[data-field="name"]').first().fill("超长奖品名称用于界面换行检查和展示截断");
   await page.locator('[data-field="probability"]').first().fill("100");
@@ -123,7 +126,7 @@ test("配置更新：保存、取消、后退与刷新保留", async ({ page }) 
 
 test("边界检查：超限保存被拦截，空奖池不可保存", async ({ page }) => {
   await clearStorage(page);
-  await setViewport(page, 390, 844);
+  await setViewport(page, 393, 852);
 
   await page.goto(`${baseURL}/settings.html`);
   await page.locator('[data-field="probability"]').nth(0).fill("60");
@@ -142,4 +145,12 @@ test("边界检查：超限保存被拦截，空奖池不可保存", async ({ pa
   await page.click("#saveButton");
   await expect(page).toHaveURL(/settings\.html$/);
   await expect(page.locator("#toast")).toContainText("奖品数量必须在 12 到 15 个之间");
+});
+
+test("视觉检查：Preview 原型效果", async ({ page }) => {
+  await setViewport(page, 1440, 900);
+  await page.goto(`${baseURL}/preview.html`);
+  // 等待 iframe 加载完成
+  await page.waitForTimeout(1000);
+  await saveScreenshot(page, `desktop-preview-mockup.png`);
 });

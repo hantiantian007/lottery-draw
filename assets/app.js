@@ -45,7 +45,7 @@ function bindReducedMotionChange(handler) {
 function renderGrid(segments) {
   grid.innerHTML = segments.map((seg, idx) => `
     <div class="prize-card" id="card-${idx}">
-      <div class="prize-icon">${seg.icon}</div>
+      <div class="prize-icon-wrapper"><img class="prize-icon-img" src="${seg.icon}" alt="奖品红包"></div>
       <div class="prize-name">${seg.label}</div>
     </div>
   `).join('');
@@ -145,7 +145,9 @@ async function handleSpin() {
   }
 
   openModal(`
-    <div class="modal-prize-icon" style="font-size:48px; margin-bottom:12px;">${outcomeInfo.outcome.icon}</div>
+    <div class="modal-prize-icon" style="margin-bottom:12px;">
+      <img src="${outcomeInfo.outcome.icon}" style="width: 80px; height: 96px; display: block; margin: 0 auto; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));" alt="奖品">
+    </div>
     <div class="modal-prize-name">${outcomeInfo.outcome.label}</div>
     ${descHtml}
     <p class="modal-chances" style="margin-top: 12px; font-size: 14px; color: #fde047;">当前剩余 ${chances} 次机会</p>

@@ -30,7 +30,7 @@ function showToast(message) {
 function readDraft() {
   const prizes = [...prizeList.querySelectorAll(".prize-item")].map((item) => ({
     id: item.dataset.id || createId(),
-    icon: item.querySelector('[data-field="icon"]').value.trim() || "🎁",
+    icon: "./images/red-envelope.svg",
     name: item.querySelector('[data-field="name"]').value.trim(),
     description: item.querySelector('[data-field="description"]').value.trim(),
     probability: clampProbability(item.querySelector('[data-field="probability"]').value),
@@ -80,7 +80,7 @@ function createPrizeItem(prize) {
   const fragment = template.content.cloneNode(true);
   const section = fragment.querySelector(".prize-item");
   section.dataset.id = prize.id || createId();
-  section.querySelector('[data-field="icon"]').value = prize.icon || "🎁";
+  // 不再显示 emoji 图标输入框
   section.querySelector('[data-field="name"]').value = prize.name || "";
   section.querySelector('[data-field="description"]').value = prize.description || "";
   section.querySelector('[data-field="probability"]').value = Number.isFinite(Number(prize.probability))

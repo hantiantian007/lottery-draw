@@ -1,3 +1,19 @@
+/* 全局输入框安全字体大小防止 iOS 缩放 */
+input[type="text"],
+input[type="number"],
+textarea {
+  font-size: 16px !important;
+}
+
+/* 触控区域增强 */
+.icon-link, .settings-icon-link, .danger-btn, .secondary-btn {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
 :root {
   color-scheme: light;
   --bg: #fff9f1;
@@ -341,26 +357,50 @@ button,
 
 /* 覆盖原有的默认样式，添加独立抽奖页主题 */
 body.lottery-theme {
-  background: linear-gradient(135deg, #e11d48, #c026d3, #ea580c);
+  background-color: #c026d3;
+  background-image: 
+    radial-gradient(circle at center, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 100%),
+    url('./images/lottery-bg-mobile.webp');
+  background-size: cover, cover;
+  background-position: center, center;
+  background-attachment: fixed, fixed;
+  background-repeat: no-repeat, no-repeat;
   color: #fff;
   margin: 0;
   height: 100vh;
+  /* 确保安全区域内撑满全屏，防止白边 */
+  height: -webkit-fill-available;
   overflow: hidden;
   display: flex;
   flex-direction: column;
 }
+@media (min-width: 768px) and (orientation: portrait) {
+  body.lottery-theme {
+    background-image: 
+      radial-gradient(circle at center, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 100%),
+      url('./images/lottery-bg-tablet-portrait.webp');
+  }
+}
+@media (min-width: 768px) and (orientation: landscape) {
+  body.lottery-theme {
+    background-image: 
+      radial-gradient(circle at center, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 100%),
+      url('./images/lottery-bg-tablet-landscape.webp');
+  }
+}
 body.lottery-theme .lottery-page {
   max-width: 100%;
-  padding: 0;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   display: flex;
   flex-direction: column;
   height: 100%;
   background: transparent;
   box-shadow: none;
+  box-sizing: border-box;
 }
 .minimal-topbar {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   padding: 20px 24px;
 }
@@ -435,15 +475,29 @@ body.lottery-theme .lottery-page {
     max-width: 108px;
   }
 }
-.prize-icon {
-  font-size: 28px;
-  line-height: 1;
-  margin-bottom: 4px;
+.prize-icon-wrapper {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 0;
+  width: 100%;
+}
+.prize-icon-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+  transition: transform 0.2s;
 }
 @media (min-width: 768px) {
-  .prize-icon {
-    font-size: 36px;
+  .prize-icon-img {
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
   }
+}
+.prize-card.active .prize-icon-img {
+  transform: translateY(-2px) scale(1.05);
+  filter: drop-shadow(0 6px 12px rgba(253, 224, 71, 0.6));
 }
 .prize-name {
   font-size: 10px;
@@ -469,25 +523,31 @@ body.lottery-theme .lottery-page {
   background: linear-gradient(to bottom, #fde047, #eab308);
   color: #713f12;
   border: none;
-  padding: 16px 60px;
+  padding: 18px 60px;
   font-size: 22px;
   font-weight: 900;
   border-radius: 999px;
   box-shadow: 0 6px 0 #ca8a04, 0 10px 20px rgba(0,0,0,0.4);
   text-shadow: 0 1px 1px rgba(255,255,255,0.6);
   cursor: pointer;
-  transition: transform 0.1s, box-shadow 0.1s;
+  transition: transform 0.1s, box-shadow 0.1s, filter 0.1s;
   display: inline-block;
+  min-height: 56px;
+  min-width: 200px;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 .btn-primary:active:not(:disabled) {
-  transform: translateY(4px);
+  transform: translateY(4px) scale(0.98);
   box-shadow: 0 2px 0 #ca8a04, 0 4px 10px rgba(0,0,0,0.4);
+  filter: brightness(0.9);
 }
 .btn-primary:disabled {
   background: #94a3b8;
   color: #475569;
   box-shadow: 0 6px 0 #64748b;
   cursor: not-allowed;
+  opacity: 0.9;
 }
 .chances-text {
   margin-top: 16px;
@@ -500,8 +560,11 @@ body.lottery-theme .lottery-page {
 body.lottery-theme .modal-card {
   background: linear-gradient(135deg, #e11d48, #c026d3);
   border: 2px solid #fde047;
+  border-radius: 24px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 2px 4px rgba(255,255,255,0.2);
   color: #fff;
   text-align: center;
+  padding: 32px 24px;
 }
 body.lottery-theme .modal-title {
   color: #fef08a;

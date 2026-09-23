@@ -43,7 +43,7 @@ function ensurePrize(prize, index) {
     name: String(prize?.name || `奖品 ${index + 1}`).trim().slice(0, 24) || `奖品 ${index + 1}`,
     description: String(prize?.description || "").trim().slice(0, 120),
     probability: clampProbability(prize?.probability),
-    icon: prize?.icon ? String(prize.icon).slice(0, 2) : "🎁",
+    icon: "./images/red-envelope.svg",
   };
 }
 
@@ -103,7 +103,7 @@ export function getDisplaySegments(config) {
     description: prize.description,
     probability: clampProbability(prize.probability),
     isThanks: false,
-    icon: prize.icon || "🎁",
+    icon: "./images/red-envelope.svg",
   }));
   const thanksProbability = getThanksProbability(sanitized);
 
@@ -114,7 +114,7 @@ export function getDisplaySegments(config) {
       description: "本次没有抽中奖品。",
       probability: thanksProbability || 100,
       isThanks: true,
-      icon: "🍀",
+      icon: "./images/red-envelope-muted.svg",
     });
   }
 
@@ -132,7 +132,7 @@ export function pickOutcome(config, randomValue = Math.random()) {
       description: prize.description,
       probability: clampProbability(prize.probability),
       isThanks: false,
-      icon: prize.icon || "🎁",
+      icon: "./images/red-envelope.svg",
     }));
 
   const thanksProbability = round2(Math.max(0, 100 - total));
@@ -143,7 +143,7 @@ export function pickOutcome(config, randomValue = Math.random()) {
       description: "本次没有抽中奖品。",
       probability: thanksProbability || 100,
       isThanks: true,
-      icon: "🍀",
+      icon: "./images/red-envelope-muted.svg",
     });
   }
 

@@ -2,29 +2,111 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>抽奖工具预览</title>
-    <link rel="stylesheet" href="./assets/styles.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>高保真原型预览</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background: #0f172a;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        font-family: system-ui, -apple-system, sans-serif;
+      }
+      .device-mockup {
+        position: relative;
+        width: 393px;
+        height: 852px;
+        background: #000;
+        border-radius: 54px;
+        box-shadow: 0 0 0 12px #262626, 0 0 0 14px #171717, 0 30px 60px rgba(0,0,0,0.6);
+        overflow: hidden;
+      }
+      .dynamic-island {
+        position: absolute;
+        top: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 120px;
+        height: 35px;
+        background: #000;
+        border-radius: 20px;
+        z-index: 100;
+      }
+      .home-indicator {
+        position: absolute;
+        bottom: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 130px;
+        height: 5px;
+        background: #fff;
+        border-radius: 100px;
+        z-index: 100;
+        opacity: 0.8;
+      }
+      .preview-frame {
+        width: 100%;
+        height: 100%;
+        border: none;
+        background: #fff;
+        border-radius: 42px;
+        overflow: hidden;
+      }
+      .instruction {
+        position: absolute;
+        right: 40px;
+        top: 40px;
+        color: #94a3b8;
+        max-width: 300px;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+      .instruction h2 {
+        color: #f8fafc;
+        margin-top: 0;
+        margin-bottom: 12px;
+        font-size: 18px;
+      }
+      .nav-links {
+        margin-top: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .nav-links a {
+        display: inline-block;
+        padding: 10px 16px;
+        background: #1e293b;
+        color: #38bdf8;
+        text-decoration: none;
+        border-radius: 8px;
+        border: 1px solid #334155;
+        transition: all 0.2s;
+      }
+      .nav-links a:hover {
+        background: #334155;
+        color: #7dd3fc;
+      }
+    </style>
   </head>
   <body>
-    <main class="page">
-      <header class="topbar">
-        <div class="title-wrap">
-          <span class="hero-badge">页面预览</span>
-          <h2>抽奖页与设置页</h2>
-          <p class="subtitle">用于本地检查手机与 iPad 浏览器下的整体布局。实际使用入口为 `index.html`。</p>
-        </div>
-        <a class="icon-link" href="./index.html">进入抽奖页</a>
-      </header>
-
-      <section class="preview-grid">
-        <div class="device-frame">
-          <iframe src="./index.html" title="抽奖页预览"></iframe>
-        </div>
-        <div class="device-frame">
-          <iframe src="./settings.html" title="设置页预览"></iframe>
-        </div>
-      </section>
-    </main>
+    <div class="device-mockup">
+      <div class="dynamic-island"></div>
+      <iframe class="preview-frame" src="./index.html"></iframe>
+      <div class="home-indicator"></div>
+    </div>
+    
+    <div class="instruction">
+      <h2>高保真原型预览 (iPhone 15 Pro)</h2>
+      <p>当前页面仅供电脑端演示效果使用。抽奖页使用了环境安全区域 (env safe-area) 适配移动端全屏。</p>
+      
+      <div class="nav-links">
+        <a href="./index.html" target="_blank">↗ 在新标签页独立打开抽奖页</a>
+        <a href="./settings.html" target="_blank">⚙️ 打开抽奖设置页</a>
+      </div>
+    </div>
   </body>
 </html>
