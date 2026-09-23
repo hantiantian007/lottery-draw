@@ -431,18 +431,21 @@ body.lottery-theme .lottery-page {
   align-items: center;
   padding: 10px;
   min-height: 0;
+  margin-top: 30px;
 }
 .marquee-grid {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 8px;
+  column-gap: 8px;
+  row-gap: 16px;
   max-width: 360px;
 }
 @media (min-width: 768px) {
   .marquee-grid {
     max-width: 600px;
-    gap: 12px;
+    column-gap: 12px;
+    row-gap: 16px;
   }
 }
 .prize-card {
