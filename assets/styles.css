@@ -363,10 +363,12 @@ body {
 }
 
 body.lottery-theme {
-  background-color: #c026d3;
-  background-image: radial-gradient(circle at center, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 100%),
-                    linear-gradient(135deg, #be123c 0%, #e11d48 30%, #ea580c 100%);
-  color: #fff;
+  background-color: #20384B;
+  background-image: linear-gradient(180deg, rgba(120, 153, 180, 0.8) 0%, rgba(32, 56, 75, 0.95) 100%), url('./images/lottery-bg-mobile.webp');
+  background-size: cover;
+  background-position: top center;
+  background-repeat: no-repeat;
+  color: #F7EEDC;
   min-height: 100vh;
   min-height: 100dvh;
   overflow-x: hidden;
@@ -376,14 +378,12 @@ body.lottery-theme {
 }
 @media (min-width: 768px) and (orientation: portrait) {
   body.lottery-theme {
-    background-image: radial-gradient(circle at center, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 100%),
-                      linear-gradient(135deg, #9f1239 0%, #be123c 30%, #ea580c 100%);
+    background-image: linear-gradient(180deg, rgba(120, 153, 180, 0.8) 0%, rgba(32, 56, 75, 0.95) 100%), url('./images/lottery-bg-tablet-portrait.webp');
   }
 }
 @media (min-width: 768px) and (orientation: landscape) {
   body.lottery-theme {
-    background-image: radial-gradient(circle at center, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 100%),
-                      linear-gradient(135deg, #be123c 0%, #e11d48 40%, #ea580c 100%);
+    background-image: linear-gradient(180deg, rgba(120, 153, 180, 0.8) 0%, rgba(32, 56, 75, 0.95) 100%), url('./images/lottery-bg-tablet-landscape.webp');
   }
 }
 body.lottery-theme .lottery-page {
@@ -406,16 +406,16 @@ body.lottery-theme .lottery-page {
 .minimal-topbar h1 {
   font-size: 24px;
   margin: 0;
-  color: #fef08a;
+  color: #F7EEDC;
   font-weight: 800;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+  text-shadow: 0 2px 4px rgba(0,0,0,0.6);
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
 .settings-icon-link {
-  color: #fef08a;
+  color: #F7EEDC;
   opacity: 0.8;
   display: flex;
   align-items: center;
@@ -453,22 +453,22 @@ body.lottery-theme .lottery-page {
   width: calc(25% - 6px);
   max-width: 82px;
   aspect-ratio: 1;
-  background: #fff;
+  background: #F7EEDC;
   border-radius: 12px;
-  border: 2px solid #fbcfe8;
+  border: 2px solid #A52336;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
   transition: transform 0.1s, box-shadow 0.1s;
   padding: 4px;
   box-sizing: border-box;
 }
 .prize-card.active {
-  border-color: #fde047;
-  background: #fef9c3;
-  box-shadow: 0 0 16px #fde047;
+  border-color: #FFD66B;
+  background: #fff;
+  box-shadow: 0 0 16px #FFD66B;
   transform: scale(1.08);
   z-index: 10;
 }
@@ -504,9 +504,9 @@ body.lottery-theme .lottery-page {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(to bottom, #ef4444, #be123c);
+  background: linear-gradient(to bottom, #A52336, #801826);
   border-radius: 8px;
-  border: 2px solid #fef08a;
+  border: 2px solid #FFD66B;
   box-sizing: border-box;
 }
 .prize-icon-img::after {
@@ -517,7 +517,7 @@ body.lottery-theme .lottery-page {
   transform: translateX(-50%);
   width: 50%;
   height: 20%;
-  background: #f43f5e;
+  background: #D8AA55;
   border-radius: 0 0 50% 50%;
 }
 @media (min-width: 768px) {
@@ -527,11 +527,11 @@ body.lottery-theme .lottery-page {
 }
 .prize-card.active .prize-icon-img {
   transform: translateY(-2px) scale(1.05);
-  filter: drop-shadow(0 6px 12px rgba(253, 224, 71, 0.6));
+  filter: drop-shadow(0 6px 12px rgba(255, 214, 107, 0.6));
 }
 .prize-name {
   font-size: 10px;
-  color: #831843;
+  color: #20384B;
   text-align: center;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -550,15 +550,15 @@ body.lottery-theme .lottery-page {
   padding: 20px 20px 40px;
 }
 .btn-primary {
-  background: linear-gradient(to bottom, #fde047, #eab308);
-  color: #713f12;
+  background: linear-gradient(to bottom, #A52336, #D8AA55);
+  color: #F7EEDC;
   border: none;
   padding: 18px 60px;
   font-size: 22px;
   font-weight: 900;
   border-radius: 999px;
-  box-shadow: 0 6px 0 #ca8a04, 0 10px 20px rgba(0,0,0,0.4);
-  text-shadow: 0 1px 1px rgba(255,255,255,0.6);
+  box-shadow: 0 6px 0 #801826, 0 10px 20px rgba(0,0,0,0.4);
+  text-shadow: 0 1px 1px rgba(0,0,0,0.4);
   cursor: pointer;
   transition: transform 0.1s, box-shadow 0.1s, filter 0.1s;
   display: inline-block;
@@ -569,20 +569,20 @@ body.lottery-theme .lottery-page {
 }
 .btn-primary:active:not(:disabled) {
   transform: translateY(4px) scale(0.98);
-  box-shadow: 0 2px 0 #ca8a04, 0 4px 10px rgba(0,0,0,0.4);
+  box-shadow: 0 2px 0 #801826, 0 4px 10px rgba(0,0,0,0.4);
   filter: brightness(0.9);
 }
 .btn-primary:disabled {
-  background: #94a3b8;
-  color: #475569;
-  box-shadow: 0 6px 0 #64748b;
+  background: #7899B4;
+  color: #F7EEDC;
+  box-shadow: 0 6px 0 #4B6E8C;
   cursor: not-allowed;
   opacity: 0.9;
 }
 .chances-text {
   margin-top: 16px;
   font-size: 16px;
-  color: #fef08a;
+  color: #FFD66B;
   text-shadow: 0 1px 2px rgba(0,0,0,0.5);
   font-weight: bold;
   user-select: none;
@@ -592,8 +592,8 @@ body.lottery-theme .lottery-page {
 }
 
 body.lottery-theme .modal-card {
-  background: linear-gradient(135deg, #e11d48, #c026d3);
-  border: 2px solid #fde047;
+  background: linear-gradient(135deg, #20384B, #A52336);
+  border: 2px solid #FFD66B;
   border-radius: 24px;
   box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 2px 4px rgba(255,255,255,0.2);
   color: #fff;
@@ -601,7 +601,7 @@ body.lottery-theme .modal-card {
   padding: 32px 24px;
 }
 body.lottery-theme .modal-title {
-  color: #fef08a;
+  color: #FFD66B;
   font-size: 28px;
   margin-bottom: 24px;
   font-weight: 900;
@@ -609,12 +609,12 @@ body.lottery-theme .modal-title {
 .modal-prize-name {
   font-size: 24px;
   font-weight: bold;
-  color: #ffffff;
+  color: #F7EEDC;
   margin-bottom: 12px;
 }
 .modal-desc {
   font-size: 16px;
-  color: #fbcfe8;
+  color: #F7EEDC;
   line-height: 1.5;
 }
 
