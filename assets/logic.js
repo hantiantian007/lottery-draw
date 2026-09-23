@@ -1,18 +1,18 @@
-const STORAGE_KEY = "lottery-tool-config-v2";
+const STORAGE_KEY = "lottery-tool-config-v3";
 
 const DEFAULT_PRIZES = [
-  { id: "p1", name: "大熊玩具", description: "可爱的毛绒大熊", probability: 5, icon: "🧸" },
-  { id: "p2", name: "精美绘本", description: "儿童插画绘本", probability: 10, icon: "📚" },
-  { id: "p3", name: "遥控汽车", description: "酷炫遥控赛车", probability: 5, icon: "🏎️" },
-  { id: "p4", name: "乐高积木", description: "创意拼装积木", probability: 5, icon: "🧱" },
-  { id: "p5", name: "水彩笔套装", description: "48色水彩笔", probability: 10, icon: "🖍️" },
-  { id: "p6", name: "游乐园门票", description: "周末单日票", probability: 2, icon: "🎟️" },
-  { id: "p7", name: "卡通贴纸", description: "随机卡通贴纸", probability: 15, icon: "🏷️" },
-  { id: "p8", name: "儿童手表", description: "智能定位手表", probability: 1, icon: "⌚" },
-  { id: "p9", name: "巧克力礼盒", description: "精美巧克力", probability: 10, icon: "🍫" },
-  { id: "p10", name: "棒棒糖", description: "水果味棒棒糖", probability: 15, icon: "🍭" },
-  { id: "p11", name: "小汽车模型", description: "合金小汽车", probability: 10, icon: "🚗" },
-  { id: "p12", name: "神秘盲盒", description: "惊喜盲盒", probability: 2, icon: "🎁" },
+  { id: "p1", name: "小号布鲁克", description: "9.9布鲁克一个", probability: 5 },
+  { id: "p2", name: "中号布鲁克", description: "19.9布鲁克一个", probability: 5 },
+  { id: "p3", name: "大号布鲁克", description: "39.9布鲁克一个", probability: 5 },
+  { id: "p4", name: "现金奖励", description: "现金奖励5元", probability: 5 },
+  { id: "p5", name: "现金奖励", description: "现金奖励10元", probability: 5 },
+  { id: "p6", name: "游乐园门票", description: "米兰德或奈尔宝游玩一次", probability: 2 },
+  { id: "p7", name: "运动次数", description: "羽毛球门票一次", probability: 5 },
+  { id: "p8", name: "随机奖励", description: "奖励打游戏1小时", probability: 5 },
+  { id: "p9", name: "零食奖励", description: "自选零食一包", probability: 5 },
+  { id: "p10", name: "饮料奖励", description: "奖励蜜雪冰城饮料一杯（热饮）", probability: 5 },
+  { id: "p11", name: "电视奖励", description: "看电视一小时", probability: 5 },
+  { id: "p12", name: "谢谢惠顾", description: "下次再参与", probability: 48 },
 ];
 
 const DEFAULT_CONFIG = {
@@ -97,21 +97,27 @@ export function validateConfig(config) {
 
 export function getDisplaySegments(config) {
   const sanitized = sanitizeConfig(config);
-  const prizeSegments = sanitized.prizes.map((prize) => ({
-    id: prize.id,
-    label: prize.name,
-    description: prize.description,
-    probability: clampProbability(prize.probability),
-    isThanks: false,
-    icon: "./assets/images/red-envelope.svg",
-  }));
-  const thanksProbability = getThanksProbability(sanitized);
+  const total = getPrizeTotal(sanitized);
+  
+  const prizeSegments = sanitized.prizes
+    .filter(prize => prize.name !== "谢谢惠顾")
+    .map((prize) => ({
+      id: prize.id,
+      label: prize.name,
+      description: prize.description,
+      probability: clampProbability(prize.probability),
+      isThanks: false,
+      icon: "./assets/images/red-envelope.svg",
+    }));
+    
+  const thanksPrize = sanitized.prizes.find(p => p.name === "谢谢惠顾");
+  const thanksProbability = getThanksProbability(sanitized) + (thanksPrize ? clampProbability(thanksPrize.probability) : 0);
 
   if (thanksProbability > 0 || prizeSegments.length === 0) {
     prizeSegments.push({
       id: "thanks",
-      label: "谢谢参与",
-      description: "本次没有抽中奖品。",
+      label: "谢谢惠顾",
+      description: thanksPrize ? thanksPrize.description : "本次没有抽中奖品。",
       probability: thanksProbability || 100,
       isThanks: true,
       icon: "./assets/images/red-envelope-muted.svg",
@@ -125,7 +131,7 @@ export function pickOutcome(config, randomValue = Math.random()) {
   const sanitized = sanitizeConfig(config);
   const total = getPrizeTotal(sanitized);
   const pool = sanitized.prizes
-    .filter((prize) => clampProbability(prize.probability) > 0)
+    .filter((prize) => clampProbability(prize.probability) > 0 && prize.name !== "谢谢惠顾")
     .map((prize) => ({
       id: prize.id,
       label: prize.name,
@@ -135,12 +141,14 @@ export function pickOutcome(config, randomValue = Math.random()) {
       icon: "./assets/images/red-envelope.svg",
     }));
 
-  const thanksProbability = round2(Math.max(0, 100 - total));
+  const thanksPrize = sanitized.prizes.find(p => p.name === "谢谢惠顾");
+  const thanksProbability = round2(Math.max(0, 100 - total)) + (thanksPrize ? clampProbability(thanksPrize.probability) : 0);
+  
   if (thanksProbability > 0 || pool.length === 0) {
     pool.push({
       id: "thanks",
-      label: "谢谢参与",
-      description: "本次没有抽中奖品。",
+      label: "谢谢惠顾",
+      description: thanksPrize ? thanksPrize.description : "本次没有抽中奖品。",
       probability: thanksProbability || 100,
       isThanks: true,
       icon: "./assets/images/red-envelope-muted.svg",

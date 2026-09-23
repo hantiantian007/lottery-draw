@@ -209,10 +209,10 @@ async function handleSpin() {
   await animateMarquee(outcomeInfo.segmentIndex, outcomeInfo.segments.length);
 
   const isThanks = outcomeInfo.outcome.isThanks;
-  const title = isThanks ? "谢谢参与" : "恭喜中奖";
+  const title = isThanks ? "谢谢惠顾" : "恭喜中奖";
   const descHtml = isThanks 
-    ? `<p class="modal-desc">这次没有抽中奖品。</p>` 
-    : (outcomeInfo.outcome.description ? `<p class="modal-desc">${outcomeInfo.outcome.description}</p>` : '');
+    ? `<p class="modal-desc">${outcomeInfo.outcome.description || "下次再参与"}</p>` 
+    : `<p class="modal-desc">${outcomeInfo.outcome.description}</p>`;
 
   modalTitle.textContent = title;
   const chances = config.remainingChances;
