@@ -14,7 +14,8 @@
           <span class="hero-badge">抽奖设置</span>
           <h2>活动标题与奖品配置</h2>
           <p class="subtitle">
-            奖品概率支持两位小数，所有奖品合计不能超过 100%。剩余概率会自动分配给“谢谢参与”。
+            奖品概率支持两位小数，所有奖品合计不能超过 100%。剩余概率会自动分配给“谢谢参与”。<br>
+            <strong>要求奖品数量在 12 到 15 个之间。</strong>
           </p>
         </div>
         <a class="icon-link" href="./index.html" aria-label="返回抽奖页">返回抽奖页</a>
@@ -26,6 +27,10 @@
             <div class="field">
               <label for="titleInput">活动标题</label>
               <input id="titleInput" type="text" maxlength="30" placeholder="请输入活动标题" />
+            </div>
+            <div class="field">
+              <label for="initialChancesInput">初始抽奖次数</label>
+              <input id="initialChancesInput" type="number" min="0" step="1" placeholder="3" />
             </div>
           </div>
 
@@ -56,21 +61,19 @@
                 <div class="summary-title">谢谢参与</div>
               </div>
               <div class="summary-highlight" id="summaryRemaining">0.00%</div>
-              <p class="summary-desc">当总概率为 100% 时，每次必定中奖。</p>
+              <p class="summary-desc">当总概率为 100% 时，必定中奖。</p>
             </div>
 
             <div class="summary-item">
               <div class="summary-head">
-                <div class="summary-title">当前说明</div>
+                <div class="summary-title">剩余次数</div>
               </div>
-              <p class="summary-desc">
-                0% 的奖品会继续展示在转盘中，但实际不会被抽中；保存失败时会明确提示原因。
-              </p>
+              <div class="summary-highlight" style="display:flex; align-items:center; justify-content:space-between;">
+                <span id="summaryChances">3</span>
+                <button id="resetChancesButton" type="button" class="secondary-btn" style="padding:4px 12px; font-size:12px;">重置</button>
+              </div>
+              <p class="summary-desc">修改奖品不自动重置，需手动点击。</p>
             </div>
-          </div>
-
-          <div class="note-box" style="margin-top: 16px;">
-            设置保存在当前浏览器。手机和 iPad 分别配置、互不自动同步；清除浏览器数据后，配置可能丢失。
           </div>
         </aside>
       </section>
@@ -86,27 +89,32 @@
           <button type="button" class="danger-btn delete-prize">删除</button>
         </div>
         <div class="prize-fields">
-          <div class="field">
-            <label>奖品名称</label>
-            <input data-field="name" type="text" maxlength="24" placeholder="例如：一等奖" />
-          </div>
-          <div class="textarea-field">
-            <label>奖品说明</label>
-            <textarea data-field="description" rows="3" maxlength="120" placeholder="例如：品牌蓝牙耳机 1 份"></textarea>
-          </div>
-          <div class="field">
-            <label>中奖概率</label>
-            <div class="probability-input">
-              <input data-field="probability" type="number" min="0" max="100" step="0.01" inputmode="decimal" placeholder="0.00" />
-              <span>%</span>
+          <div class="prize-row" style="display: flex; gap: 8px;">
+            <div class="field" style="flex: 0 0 60px;">
+              <label>图标</label>
+              <input data-field="icon" type="text" maxlength="2" placeholder="🎁" />
             </div>
+            <div class="field" style="flex: 1;">
+              <label>奖品名称</label>
+              <input data-field="name" type="text" maxlength="24" placeholder="一等奖" />
+            </div>
+            <div class="field" style="flex: 0 0 100px;">
+              <label>概率</label>
+              <div class="probability-input">
+                <input data-field="probability" type="number" min="0" max="100" step="0.01" inputmode="decimal" placeholder="0.00" />
+                <span>%</span>
+              </div>
+            </div>
+          </div>
+          <div class="textarea-field" style="margin-top: 8px;">
+            <label>奖品说明</label>
+            <textarea data-field="description" rows="2" maxlength="120" placeholder="说明信息只在中奖弹窗显示"></textarea>
           </div>
         </div>
       </section>
     </template>
 
     <div id="toast" class="toast" aria-live="polite"></div>
-
     <script type="module" src="./assets/settings.js"></script>
   </body>
 </html>

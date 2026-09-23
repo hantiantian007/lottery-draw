@@ -4,29 +4,27 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <title>现场抽奖工具</title>
+    <title>韩梓墨专属抽奖</title>
     <link rel="stylesheet" href="./assets/styles.css" />
   </head>
-  <body class="lottery-dark-theme">
+  <body class="lottery-theme">
     <main class="page lottery-page">
       <header class="minimal-topbar">
-        <h1 id="activityTitle">现场抽奖</h1>
+        <h1 id="activityTitle">韩梓墨专属抽奖</h1>
         <a class="settings-icon-link" href="./settings.html" aria-label="抽奖设置">
           <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
         </a>
       </header>
 
-      <section class="wheel-container">
-        <div class="wheel-shell-dark" aria-label="抽奖转盘">
-          <div class="wheel-pointer" aria-hidden="true"></div>
-          <canvas id="wheelCanvas" class="wheel" width="720" height="720"></canvas>
-          <div class="wheel-center"></div>
+      <section class="marquee-container">
+        <div class="marquee-grid" id="marqueeGrid">
+          <!-- Cards rendered by JS -->
         </div>
       </section>
 
       <section class="action-container">
-        <button id="spinButton" class="btn-gold" type="button">开始抽奖</button>
-        <p id="statusText" class="status-text">点击按钮，开启好运</p>
+        <button id="spinButton" class="btn-primary" type="button">开始抽奖</button>
+        <p id="chancesText" class="chances-text">今日剩余 3 次机会</p>
       </section>
     </main>
 
@@ -35,13 +33,12 @@
         <h2 class="modal-title" id="modalTitle">抽奖结果</h2>
         <div class="modal-body" id="modalBody"></div>
         <div class="modal-actions">
-          <button id="closeModalButton" type="button" class="btn-gold" style="width: 100%; font-size: 18px; padding: 12px;">完成</button>
+          <button id="closeModalButton" type="button" class="btn-primary" style="width: 100%; font-size: 18px; padding: 12px;">完成</button>
         </div>
       </div>
     </div>
 
     <div id="toast" class="toast" aria-live="polite"></div>
-
     <script type="module" src="./assets/app.js"></script>
   </body>
 </html>

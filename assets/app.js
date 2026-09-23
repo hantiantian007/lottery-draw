@@ -1,23 +1,20 @@
-import { getDisplaySegments, getPrizeTotal, getThanksProbability, loadConfig, pickOutcome } from "./logic.js";
+import { getDisplaySegments, loadConfig, pickOutcome, saveConfig } from "./logic.js";
 
 const titleElement = document.querySelector("#activityTitle");
 const spinButton = document.querySelector("#spinButton");
-const statusText = document.querySelector("#statusText");
-const canvas = document.querySelector("#wheelCanvas");
+const chancesText = document.querySelector("#chancesText");
+const grid = document.querySelector("#marqueeGrid");
 const toast = document.querySelector("#toast");
 const modal = document.querySelector("#resultModal");
 const modalTitle = document.querySelector("#modalTitle");
 const modalBody = document.querySelector("#modalBody");
 const closeModalButton = document.querySelector("#closeModalButton");
 
-const ctx = canvas.getContext("2d");
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 let config = loadConfig();
-let currentRotation = 0;
 let spinning = false;
 let hideToastTimer = 0;
-let lastOutcomeInfo = null;
 
 function showToast(message) {
   window.clearTimeout(hideToastTimer);
@@ -45,114 +42,124 @@ function bindReducedMotionChange(handler) {
   }
 }
 
-function drawWheel(segments) {
-  const size = canvas.width;
-  const center = size / 2;
-  const radius = size / 2 - 16;
-  const slice = (Math.PI * 2) / segments.length;
+function renderGrid(segments) {
+  grid.innerHTML = segments.map((seg, idx) => `
+    <div class="prize-card" id="card-${idx}">
+      <div class="prize-icon">${seg.icon}</div>
+      <div class="prize-name">${seg.label}</div>
+    </div>
+  `).join('');
+}
 
-  ctx.clearRect(0, 0, size, size);
-  ctx.save();
-  ctx.translate(center, center);
-
-  segments.forEach((segment, index) => {
-    const start = -Math.PI / 2 + index * slice;
-    const end = start + slice;
-
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.arc(0, 0, radius, start, end);
-    ctx.closePath();
-    ctx.fillStyle = segment.color;
-    ctx.fill();
-
-    ctx.save();
-    ctx.rotate(start + slice / 2);
-    ctx.textAlign = "center";
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 28px sans-serif";
-    ctx.fillText(segment.label.slice(0, 8), radius * 0.6, 10);
-    ctx.restore();
-  });
-
-  ctx.restore();
+function updateChancesDisplay() {
+  const chances = config.remainingChances;
+  if (chances <= 0) {
+    spinButton.disabled = true;
+    spinButton.textContent = "抽奖机会已用完";
+    chancesText.textContent = "今日剩余 0 次机会";
+  } else {
+    spinButton.disabled = false;
+    spinButton.textContent = "开始抽奖";
+    chancesText.textContent = `今日剩余 ${chances} 次机会`;
+  }
 }
 
 function render() {
   config = loadConfig();
   const segments = getDisplaySegments(config);
   titleElement.textContent = config.title;
-  drawWheel(segments);
-  window.__lotteryState = {
-    config,
-    segments,
-    currentRotation,
-    lastOutcomeInfo,
-  };
+  renderGrid(segments);
+  updateChancesDisplay();
+  
+  if (window.__lastActiveIndex !== undefined) {
+    const card = document.getElementById(`card-${window.__lastActiveIndex}`);
+    if (card) card.classList.add('active');
+  }
 }
 
-function animateToSegment(segmentIndex, segmentCount) {
-  const slice = 360 / segmentCount;
-  const centerAngle = segmentIndex * slice + slice / 2;
-  const normalizedTarget = (360 - centerAngle) % 360;
-  const base = ((currentRotation % 360) + 360) % 360;
-  const delta = (normalizedTarget - base + 360) % 360;
-  const extraTurns = reducedMotion.matches ? 0 : 6 * 360;
-  const duration = reducedMotion.matches ? 220 : 4200;
-  const nextRotation = currentRotation + extraTurns + delta;
-
-  return new Promise((resolve) => {
-    canvas.style.transition = reducedMotion.matches ? "none" : `transform ${duration}ms cubic-bezier(0.16, 1, 0.3, 1)`;
-    canvas.style.transform = `rotate(${nextRotation}deg)`;
-
-    if (reducedMotion.matches) {
-      currentRotation = nextRotation;
-      window.requestAnimationFrame(resolve);
-      return;
+async function animateMarquee(targetIndex, totalSegments) {
+  const minLoops = reducedMotion.matches ? 1 : 4;
+  const minSteps = totalSegments * minLoops + targetIndex;
+  let currentStep = window.__lastActiveIndex || 0;
+  const targetStep = currentStep + minSteps;
+  
+  return new Promise(resolve => {
+    function step() {
+      document.querySelectorAll('.prize-card').forEach(c => c.classList.remove('active'));
+      const activeIndex = currentStep % totalSegments;
+      const card = document.getElementById(`card-${activeIndex}`);
+      if (card) card.classList.add('active');
+      
+      if (currentStep >= targetStep) {
+        window.__lastActiveIndex = activeIndex;
+        resolve();
+        return;
+      }
+      
+      currentStep++;
+      const remaining = targetStep - currentStep;
+      let delay = 30;
+      if (!reducedMotion.matches) {
+        if (remaining < 10) delay = 50 + (10 - remaining) * 30;
+        if (remaining < 4) delay = 150 + (4 - remaining) * 100;
+      }
+      
+      setTimeout(step, delay);
     }
-
-    window.setTimeout(() => {
-      currentRotation = nextRotation;
-      resolve();
-    }, duration + 30);
+    step();
   });
 }
 
 async function handleSpin() {
-  if (spinning) {
+  if (spinning || config.remainingChances <= 0) {
     return;
   }
 
+  config.remainingChances -= 1;
+  const saveRes = saveConfig(config);
+  if (!saveRes.ok) {
+    showToast(saveRes.message);
+  }
+  updateChancesDisplay();
+
   const outcomeInfo = pickOutcome(config);
-  lastOutcomeInfo = outcomeInfo;
   spinning = true;
   spinButton.disabled = true;
   spinButton.textContent = "抽奖中...";
-  if (statusText) statusText.textContent = "正在为您抽取好运...";
 
-  await animateToSegment(outcomeInfo.segmentIndex, outcomeInfo.segments.length);
+  await animateMarquee(outcomeInfo.segmentIndex, outcomeInfo.segments.length);
 
-  render();
   const isThanks = outcomeInfo.outcome.isThanks;
   const title = isThanks ? "谢谢参与" : "恭喜中奖";
   const descHtml = isThanks 
-    ? `<p class="modal-desc">本次未中奖，欢迎继续参与。</p>` 
+    ? `<p class="modal-desc">这次没有抽中奖品。</p>` 
     : (outcomeInfo.outcome.description ? `<p class="modal-desc">${outcomeInfo.outcome.description}</p>` : '');
 
   modalTitle.textContent = title;
+  const chances = config.remainingChances;
+  
+  if (chances > 0) {
+    closeModalButton.textContent = "再抽一次";
+  } else {
+    closeModalButton.textContent = "抽奖机会已用完";
+  }
+
   openModal(`
+    <div class="modal-prize-icon" style="font-size:48px; margin-bottom:12px;">${outcomeInfo.outcome.icon}</div>
     <div class="modal-prize-name">${outcomeInfo.outcome.label}</div>
     ${descHtml}
+    <p class="modal-chances" style="margin-top: 12px; font-size: 14px; color: #fde047;">当前剩余 ${chances} 次机会</p>
   `);
 
   spinning = false;
-  spinButton.disabled = false;
-  spinButton.textContent = "再抽一次";
-  if (statusText) statusText.textContent = "点击按钮，开启好运";
+  updateChancesDisplay();
 }
 
 spinButton.addEventListener("click", handleSpin);
-closeModalButton.addEventListener("click", closeModal);
+closeModalButton.addEventListener("click", () => {
+  closeModal();
+});
+
 modal.addEventListener("click", (event) => {
   if (event.target === modal) {
     closeModal();
@@ -166,7 +173,6 @@ window.addEventListener("keydown", (event) => {
 
 window.addEventListener("storage", () => {
   render();
-  showToast("已检测到配置更新，当前页面已同步刷新。");
 });
 window.addEventListener("pageshow", () => {
   render();

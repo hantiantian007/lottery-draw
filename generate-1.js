@@ -1,4 +1,6 @@
-const STORAGE_KEY = "lottery-tool-config-v2";
+const fs = require('fs');
+
+const logicJs = `const STORAGE_KEY = "lottery-tool-config-v2";
 
 const DEFAULT_PRIZES = [
   { id: "p1", name: "大熊玩具", description: "可爱的毛绒大熊", probability: 5, icon: "🧸" },
@@ -34,13 +36,13 @@ function clampProbability(value) {
 }
 
 function createId() {
-  return `p_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
+  return \`p_\${Date.now().toString(36)}_\${Math.random().toString(36).slice(2, 7)}\`;
 }
 
 function ensurePrize(prize, index) {
   return {
     id: prize?.id || createId(),
-    name: String(prize?.name || `奖品 ${index + 1}`).trim().slice(0, 24) || `奖品 ${index + 1}`,
+    name: String(prize?.name || \`奖品 \${index + 1}\`).trim().slice(0, 24) || \`奖品 \${index + 1}\`,
     description: String(prize?.description || "").trim().slice(0, 120),
     probability: clampProbability(prize?.probability),
     icon: prize?.icon ? String(prize.icon).slice(0, 2) : "🎁",
@@ -71,15 +73,15 @@ export function validateConfig(config) {
   if (!sanitized.title.trim()) errors.push("活动标题不能为空。");
   
   if (sanitized.prizes.length < 12 || sanitized.prizes.length > 15) {
-    errors.push(`奖品数量必须在 12 到 15 个之间（当前 ${sanitized.prizes.length} 个）。`);
+    errors.push(\`奖品数量必须在 12 到 15 个之间（当前 \${sanitized.prizes.length} 个）。\`);
   }
 
   sanitized.prizes.forEach((prize, index) => {
-    if (!prize.name.trim()) errors.push(`第 ${index + 1} 个奖品名称不能为空。`);
+    if (!prize.name.trim()) errors.push(\`第 \${index + 1} 个奖品名称不能为空。\`);
   });
 
   if (total > 100) {
-    errors.push(`当前奖品总概率为 ${total.toFixed(2)}%，已超过 100%，请调整后再保存。`);
+    errors.push(\`当前奖品总概率为 \${total.toFixed(2)}%，已超过 100%，请调整后再保存。\`);
   }
   
   if (!Number.isInteger(sanitized.initialChances) || sanitized.initialChances < 0) {
@@ -204,8 +206,10 @@ export function saveConfig(config) {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(validation.config));
     return { ok: true, config: validation.config };
   } catch (error) {
-    return { ok: false, message: `保存失败：${error instanceof Error ? error.message : "浏览器存储不可用。"}` };
+    return { ok: false, message: \`保存失败：\${error instanceof Error ? error.message : "浏览器存储不可用。"}\` };
   }
 }
 
 export { DEFAULT_CONFIG, STORAGE_KEY, createId, clampProbability, round2 };
+`;
+fs.writeFileSync('assets/logic.js', logicJs);

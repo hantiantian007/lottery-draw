@@ -75,28 +75,35 @@ test("配置更新：保存、取消、后退与刷新保留", async ({ page }) 
   await setViewport(page, 390, 844);
 
   await page.goto(`${baseURL}/index.html`);
-  await expect(page.locator("#activityTitle")).toHaveText("秋季现场抽奖");
+  await expect(page.locator("#activityTitle")).toHaveText("韩梓墨专属抽奖");
 
   await page.click('a[href="./settings.html"]');
   await page.fill("#titleInput", "取消不会生效");
   await page.fill('[data-field="name"]', "取消测试奖品");
   await page.click("#cancelButton");
   await expect(page).toHaveURL(/index\.html$/);
-  await expect(page.locator("#activityTitle")).toHaveText("秋季现场抽奖");
+  await expect(page.locator("#activityTitle")).toHaveText("韩梓墨专属抽奖");
 
   await page.click('a[href="./settings.html"]');
   await page.fill("#titleInput", "春季抽奖会");
-  await page.fill('[data-field="name"]', "超长奖品名称用于界面换行检查和展示截断");
-  await page.fill('[data-field="description"]', "用于验证设置保存后首页标题、奖品和概率都会同步更新。");
-  await page.fill('[data-field="probability"]', "100");
+  await page.locator('[data-field="name"]').first().fill("超长奖品名称用于界面换行检查和展示截断");
+  await page.locator('[data-field="probability"]').first().fill("100");
+  
+  const probInputs = page.locator('[data-field="probability"]');
+  const probCount = await probInputs.count();
+  for (let i = 1; i < probCount; i++) {
+    await probInputs.nth(i).fill("0");
+  }
+
   const deleteButtons = page.locator(".delete-prize");
-  while ((await deleteButtons.count()) > 1) {
+  while ((await deleteButtons.count()) > 12) {
     await deleteButtons.last().click();
   }
   await page.click("#saveButton");
 
   await expect(page).toHaveURL(/index\.html$/);
   await expect(page.locator("#activityTitle")).toHaveText("春季抽奖会");
+  await expect(page.locator("#marqueeGrid")).toContainText("超长奖品名称用于界面换行检查和展示截断");
 
   await page.reload();
   await expect(page.locator("#activityTitle")).toHaveText("春季抽奖会");
@@ -110,19 +117,16 @@ test("配置更新：保存、取消、后退与刷新保留", async ({ page }) 
   const modalText = await page.locator("#modalBody").innerText();
   expect(modalText).toContain("超长奖品名称用于界面换行检查和展示截断");
 
-  const state = await page.evaluate(() => window.__lotteryState);
-  const normalizedRotation = ((state.currentRotation % 360) + 360) % 360;
-  const slice = 360 / state.segments.length;
-  const expectedRotation = (360 - (state.lastOutcomeInfo.segmentIndex * slice + slice / 2)) % 360;
-  expect(Math.abs(normalizedRotation - expectedRotation)).toBeLessThan(0.01);
+  await page.click("#closeModalButton");
+  await expect(page.locator("#chancesText")).toContainText("今日剩余 2 次机会");
 });
 
-test("边界检查：超限保存被拦截，空奖池可保存", async ({ page }) => {
+test("边界检查：超限保存被拦截，空奖池不可保存", async ({ page }) => {
   await clearStorage(page);
   await setViewport(page, 390, 844);
 
   await page.goto(`${baseURL}/settings.html`);
-  await page.fill('[data-field="probability"]', "60");
+  await page.locator('[data-field="probability"]').nth(0).fill("60");
   await page.locator('[data-field="probability"]').nth(1).fill("50");
   await page.click("#saveButton");
   await expect(page).toHaveURL(/settings\.html$/);
@@ -131,9 +135,11 @@ test("边界检查：超限保存被拦截，空奖池可保存", async ({ page 
   const deleteButtons = page.locator(".delete-prize");
   const count = await deleteButtons.count();
   for (let i = 0; i < count; i += 1) {
-    await deleteButtons.first().click();
+    if (await deleteButtons.count() <= 11) break;
+    await deleteButtons.last().click();
   }
 
   await page.click("#saveButton");
-  await expect(page).toHaveURL(/index\.html$/);
+  await expect(page).toHaveURL(/settings\.html$/);
+  await expect(page.locator("#toast")).toContainText("奖品数量必须在 12 到 15 个之间");
 });
