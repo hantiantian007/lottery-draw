@@ -97,9 +97,6 @@ test("配置更新：保存、取消、后退与刷新保留", async ({ page }) 
 
   await expect(page).toHaveURL(/index\.html$/);
   await expect(page.locator("#activityTitle")).toHaveText("春季抽奖会");
-  await expect(page.locator("#legendList")).toContainText("超长奖品名称用于界面换行检查和展示截断");
-  await expect(page.locator("#thanksProbability")).toHaveText("0.00%");
-  await expect(page.locator("#legendList")).not.toContainText("谢谢参与");
 
   await page.reload();
   await expect(page.locator("#activityTitle")).toHaveText("春季抽奖会");
@@ -139,6 +136,4 @@ test("边界检查：超限保存被拦截，空奖池可保存", async ({ page 
 
   await page.click("#saveButton");
   await expect(page).toHaveURL(/index\.html$/);
-  await expect(page.locator("#thanksProbability")).toHaveText("100.00%");
-  await expect(page.locator("#legendList")).toContainText("谢谢参与");
 });

@@ -1,15 +1,12 @@
 import { getDisplaySegments, getPrizeTotal, getThanksProbability, loadConfig, pickOutcome } from "./logic.js";
 
 const titleElement = document.querySelector("#activityTitle");
-const totalElement = document.querySelector("#totalProbability");
-const thanksElement = document.querySelector("#thanksProbability");
-const legendElement = document.querySelector("#legendList");
 const spinButton = document.querySelector("#spinButton");
+const statusText = document.querySelector("#statusText");
 const canvas = document.querySelector("#wheelCanvas");
-const recentResult = document.querySelector("#recentResult");
-const resultMeta = document.querySelector("#resultMeta");
 const toast = document.querySelector("#toast");
 const modal = document.querySelector("#resultModal");
+const modalTitle = document.querySelector("#modalTitle");
 const modalBody = document.querySelector("#modalBody");
 const closeModalButton = document.querySelector("#closeModalButton");
 
@@ -52,7 +49,6 @@ function drawWheel(segments) {
   const size = canvas.width;
   const center = size / 2;
   const radius = size / 2 - 16;
-  const innerRadius = size * 0.2;
   const slice = (Math.PI * 2) / segments.length;
 
   ctx.clearRect(0, 0, size, size);
@@ -75,46 +71,18 @@ function drawWheel(segments) {
     ctx.textAlign = "center";
     ctx.fillStyle = "#ffffff";
     ctx.font = "bold 28px sans-serif";
-    ctx.fillText(segment.label.slice(0, 8), radius * 0.66, 8);
-    ctx.font = "600 20px sans-serif";
-    ctx.fillText(`${segment.probability.toFixed(2)}%`, radius * 0.66, 40);
+    ctx.fillText(segment.label.slice(0, 8), radius * 0.6, 10);
     ctx.restore();
   });
 
-  ctx.beginPath();
-  ctx.fillStyle = "#ffffff";
-  ctx.arc(0, 0, innerRadius, 0, Math.PI * 2);
-  ctx.fill();
   ctx.restore();
-}
-
-function renderLegend(segments) {
-  legendElement.innerHTML = segments
-    .map(
-      (segment) => `
-        <div class="legend-item">
-          <div class="legend-row">
-            <div class="legend-name">
-              <span class="swatch" style="background:${segment.color}"></span>
-              <span>${segment.label}</span>
-            </div>
-            <strong>${segment.probability.toFixed(2)}%</strong>
-          </div>
-          <p class="legend-meta">${segment.isThanks ? "未分配给奖品的概率将落到这里。" : segment.description || "未填写奖品说明。"}</p>
-        </div>
-      `
-    )
-    .join("");
 }
 
 function render() {
   config = loadConfig();
   const segments = getDisplaySegments(config);
   titleElement.textContent = config.title;
-  totalElement.textContent = `${getPrizeTotal(config).toFixed(2)}%`;
-  thanksElement.textContent = `${getThanksProbability(config).toFixed(2)}%`;
   drawWheel(segments);
-  renderLegend(segments);
   window.__lotteryState = {
     config,
     segments,
@@ -160,21 +128,27 @@ async function handleSpin() {
   spinning = true;
   spinButton.disabled = true;
   spinButton.textContent = "抽奖中...";
+  if (statusText) statusText.textContent = "正在为您抽取好运...";
 
   await animateToSegment(outcomeInfo.segmentIndex, outcomeInfo.segments.length);
 
-  recentResult.textContent = outcomeInfo.outcome.label;
-  resultMeta.textContent = `本次随机值 ${outcomeInfo.roll.toFixed(2)} / 100`;
   render();
+  const isThanks = outcomeInfo.outcome.isThanks;
+  const title = isThanks ? "谢谢参与" : "恭喜中奖";
+  const descHtml = isThanks 
+    ? `<p class="modal-desc">本次未中奖，欢迎继续参与。</p>` 
+    : (outcomeInfo.outcome.description ? `<p class="modal-desc">${outcomeInfo.outcome.description}</p>` : '');
+
+  modalTitle.textContent = title;
   openModal(`
-    <p><strong>${outcomeInfo.outcome.label}</strong></p>
-    <p>${outcomeInfo.outcome.isThanks ? "本次未中奖，欢迎继续参与。" : outcomeInfo.outcome.description || "恭喜中奖，请现场登记领取奖品。"}</p>
-    <p class="footnote">动画结束位置已对齐当前抽取结果。每次抽奖都重新按设定概率独立计算。</p>
+    <div class="modal-prize-name">${outcomeInfo.outcome.label}</div>
+    ${descHtml}
   `);
 
   spinning = false;
   spinButton.disabled = false;
   spinButton.textContent = "再抽一次";
+  if (statusText) statusText.textContent = "点击按钮，开启好运";
 }
 
 spinButton.addEventListener("click", handleSpin);
