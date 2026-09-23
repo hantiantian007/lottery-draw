@@ -30,7 +30,7 @@ function showToast(message) {
 function readDraft() {
   const prizes = [...prizeList.querySelectorAll(".prize-item")].map((item) => ({
     id: item.dataset.id || createId(),
-    icon: "./images/red-envelope.svg",
+    icon: "./assets/images/red-envelope.svg",
     name: item.querySelector('[data-field="name"]').value.trim(),
     description: item.querySelector('[data-field="description"]').value.trim(),
     probability: clampProbability(item.querySelector('[data-field="probability"]').value),

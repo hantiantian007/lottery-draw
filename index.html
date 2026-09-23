@@ -35,6 +35,20 @@
       </div>
     </div>
 
+    <!-- 隐藏重置确认弹窗 -->
+    <div class="modal-overlay" id="resetModal">
+      <div class="modal-card">
+        <h2 style="margin-top:0; color:#fde047;">重置抽奖次数</h2>
+        <div style="margin: 20px 0; font-size: 16px;">
+          确定要将剩余抽奖次数恢复为 <span id="resetModalTargetCount">0</span> 次吗？
+        </div>
+        <div style="display: flex; gap: 12px; justify-content: center; margin-top: 24px;">
+          <button class="secondary-btn" id="cancelResetBtn" style="padding: 12px 30px; font-size: 16px; border-radius: 999px; background: rgba(255,255,255,0.2); color: #fff; border: none; cursor: pointer; min-height: 44px;">取消</button>
+          <button class="btn-primary" id="confirmResetBtn" style="padding: 12px 30px; font-size: 16px; min-height: 44px;">确认重置</button>
+        </div>
+      </div>
+    </div>
+
     <div id="toast" class="toast" aria-live="polite"></div>
     <script type="module" src="./assets/app.js"></script>
   </body>

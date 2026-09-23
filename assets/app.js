@@ -16,6 +16,110 @@ let config = loadConfig();
 let spinning = false;
 let hideToastTimer = 0;
 
+// Secret gestures state
+const SECRET_TIMEOUT_MS = 3000;
+const SECRET_CLICKS_NEEDED = 5;
+
+let titleClickCount = 0;
+let titleClickTimer = null;
+
+let chancesClickCount = 0;
+let chancesClickTimer = null;
+
+function setupSecretGestures() {
+  const activityTitle = document.getElementById("activityTitle");
+  const chancesText = document.getElementById("chancesText");
+  const resetModal = document.getElementById("resetModal");
+  const resetModalTargetCount = document.getElementById("resetModalTargetCount");
+  const cancelResetBtn = document.getElementById("cancelResetBtn");
+  const confirmResetBtn = document.getElementById("confirmResetBtn");
+  
+  function isModalOpen() {
+    return document.getElementById("resultModal").classList.contains("show") ||
+           (resetModal && resetModal.classList.contains("show"));
+  }
+
+  // 标题隐藏点击：跳转设置
+  if (activityTitle) {
+    activityTitle.addEventListener("pointerdown", (e) => {
+      if (spinning || isModalOpen()) return;
+      
+      titleClickCount++;
+      clearTimeout(titleClickTimer);
+      
+      if (titleClickCount >= SECRET_CLICKS_NEEDED) {
+        titleClickCount = 0;
+        window.location.href = "./settings.html";
+      } else {
+        titleClickTimer = setTimeout(() => {
+          titleClickCount = 0;
+        }, SECRET_TIMEOUT_MS);
+      }
+    });
+  }
+
+  // 次数区域隐藏点击：重置次数
+  if (chancesText) {
+    chancesText.addEventListener("pointerdown", (e) => {
+      if (spinning || isModalOpen()) return;
+      
+      chancesClickCount++;
+      clearTimeout(chancesClickTimer);
+      
+      if (chancesClickCount >= SECRET_CLICKS_NEEDED) {
+        chancesClickCount = 0;
+        
+        // 显示重置确认弹窗
+        if (resetModalTargetCount) {
+          resetModalTargetCount.textContent = config.initialChances || 0;
+        }
+        if (resetModal) {
+          resetModal.classList.add("show");
+        }
+      } else {
+        chancesClickTimer = setTimeout(() => {
+          chancesClickCount = 0;
+        }, SECRET_TIMEOUT_MS);
+      }
+    });
+  }
+
+  // 重置确认弹窗操作
+  if (cancelResetBtn) {
+    cancelResetBtn.addEventListener("click", () => {
+      resetModal.classList.remove("show");
+    });
+  }
+
+  if (confirmResetBtn) {
+    confirmResetBtn.addEventListener("click", () => {
+      resetModal.classList.remove("show");
+      
+      // 执行重置逻辑
+      config.remainingChances = config.initialChances || 0;
+      const saveRes = saveConfig(config);
+      
+      if (saveRes && saveRes.ok === false) {
+        showToast(saveRes.message || "保存失败");
+      } else {
+        showToast(`抽奖次数已重置为 ${config.remainingChances} 次`);
+        updateChancesUI();
+      }
+    });
+  }
+}
+
+setupSecretGestures();
+
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    titleClickCount = 0;
+    chancesClickCount = 0;
+    clearTimeout(titleClickTimer);
+    clearTimeout(chancesClickTimer);
+  }
+});
+
 function showToast(message) {
   window.clearTimeout(hideToastTimer);
   toast.textContent = message;
@@ -51,16 +155,17 @@ function renderGrid(segments) {
   `).join('');
 }
 
-function updateChancesDisplay() {
-  const chances = config.remainingChances;
-  if (chances <= 0) {
+function updateChancesUI() {
+  if (chancesText) {
+    chancesText.textContent = `今日剩余 ${config.remainingChances} 次机会`;
+  }
+  
+  if (config.remainingChances <= 0) {
     spinButton.disabled = true;
     spinButton.textContent = "抽奖机会已用完";
-    chancesText.textContent = "今日剩余 0 次机会";
   } else {
     spinButton.disabled = false;
     spinButton.textContent = "开始抽奖";
-    chancesText.textContent = `今日剩余 ${chances} 次机会`;
   }
 }
 
@@ -69,7 +174,7 @@ function render() {
   const segments = getDisplaySegments(config);
   titleElement.textContent = config.title;
   renderGrid(segments);
-  updateChancesDisplay();
+  updateChancesUI();
   
   if (window.__lastActiveIndex !== undefined) {
     const card = document.getElementById(`card-${window.__lastActiveIndex}`);
@@ -120,7 +225,7 @@ async function handleSpin() {
   if (!saveRes.ok) {
     showToast(saveRes.message);
   }
-  updateChancesDisplay();
+  updateChancesUI();
 
   const outcomeInfo = pickOutcome(config);
   spinning = true;
@@ -154,7 +259,7 @@ async function handleSpin() {
   `);
 
   spinning = false;
-  updateChancesDisplay();
+  updateChancesUI();
 }
 
 spinButton.addEventListener("click", handleSpin);

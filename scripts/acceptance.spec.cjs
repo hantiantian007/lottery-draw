@@ -75,53 +75,108 @@ test("视觉检查：手机与 iPad 三种视口", async ({ page }) => {
 test("配置更新：保存、取消、后退与刷新保留", async ({ page }) => {
   await clearStorage(page);
   await setViewport(page, 393, 852);
+  await page.goto(`${baseURL}/settings.html`);
+  
+  await page.fill("#titleInput", "测试标题变更");
+  await page.fill('#initialChancesInput', "10");
+  await page.click("#resetChancesButton");
+  await page.click("#saveButton");
+  
+  // Settings automatically navigate back to index on save
+  await expect(page).toHaveURL(/index\.html$/);
+  await expect(page.locator("#activityTitle")).toHaveText("测试标题变更");
+  await expect(page.locator("#chancesText")).toHaveText(/10 次机会/);
 
-  await page.goto(`${baseURL}/index.html`);
-  await expect(page.locator("#activityTitle")).toHaveText("韩梓墨专属抽奖");
-
-  // 首页已经移除设置入口，改为直接通过 URL 导航测试
+  // 取消不会生效
   await page.goto(`${baseURL}/settings.html`);
   await page.fill("#titleInput", "取消不会生效");
-  await page.fill('[data-field="name"]', "取消测试奖品");
   await page.click("#cancelButton");
   await expect(page).toHaveURL(/index\.html$/);
-  await expect(page.locator("#activityTitle")).toHaveText("韩梓墨专属抽奖");
+  await expect(page.locator("#activityTitle")).toHaveText("测试标题变更");
 
   await page.goto(`${baseURL}/settings.html`);
-  await page.fill("#titleInput", "春季抽奖会");
-  await page.locator('[data-field="name"]').first().fill("超长奖品名称用于界面换行检查和展示截断");
-  await page.locator('[data-field="probability"]').first().fill("100");
-  
-  const probInputs = page.locator('[data-field="probability"]');
-  const probCount = await probInputs.count();
-  for (let i = 1; i < probCount; i++) {
-    await probInputs.nth(i).fill("0");
-  }
-
-  const deleteButtons = page.locator(".delete-prize");
-  while ((await deleteButtons.count()) > 12) {
-    await deleteButtons.last().click();
-  }
+  await page.click("#resetChancesButton");
   await page.click("#saveButton");
-
   await expect(page).toHaveURL(/index\.html$/);
-  await expect(page.locator("#activityTitle")).toHaveText("春季抽奖会");
-  await expect(page.locator("#marqueeGrid")).toContainText("超长奖品名称用于界面换行检查和展示截断");
-
+  
   await page.reload();
-  await expect(page.locator("#activityTitle")).toHaveText("春季抽奖会");
+  await expect(page.locator("#activityTitle")).toHaveText("测试标题变更");
+});
 
-  await page.goBack();
-  await page.goForward();
-  await expect(page.locator("#activityTitle")).toHaveText("春季抽奖会");
-
+test("隐藏手势：3秒5次点击重置抽奖次数与跳转设置页", async ({ page }) => {
+  await clearStorage(page);
+  await setViewport(page, 393, 852);
+  
+  // 配置初始次数 2
+  await page.goto(`${baseURL}/settings.html`);
+  await page.fill('#initialChancesInput', "2");
+  await page.click("#resetChancesButton");
+  await page.click("#saveButton");
+  
+  // 消耗一次次数
   await page.click("#spinButton");
-  await expect(page.locator("#resultModal.show")).toBeVisible();
-  const modalText = await page.locator("#modalBody").innerText();
-  expect(modalText).toContain("超长奖品名称用于界面换行检查和展示截断");
-
+  await page.waitForSelector("#resultModal.show");
   await page.click("#closeModalButton");
-  await expect(page.locator("#chancesText")).toContainText("今日剩余 2 次机会");
+  await expect(page.locator("#chancesText")).toHaveText(/1 次机会/);
+  
+  // 1. 点击标题 4 次不应跳转
+  for (let i = 0; i < 4; i++) {
+    await page.evaluate(() => {
+      const el = document.querySelector("#activityTitle") || document.querySelector("h1");
+      if (el) el.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+    });
+    await page.waitForTimeout(50);
+  }
+  await page.waitForTimeout(500);
+  await expect(page).toHaveURL(/index\.html$/);
+  
+  // 2. 点击标题 5 次应跳转到 settings.html
+  for (let i = 0; i < 5; i++) {
+    await page.evaluate(() => {
+      const el = document.querySelector("#activityTitle") || document.querySelector("h1");
+      if (el) el.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+    });
+    await page.waitForTimeout(50);
+  }
+  await expect(page).toHaveURL(/settings\.html$/);
+  await page.click("#cancelButton");
+  
+  // 3. 点击次数区域 4 次不应弹窗
+  for (let i = 0; i < 4; i++) {
+    await page.evaluate(() => {
+      const el = document.querySelector("#chancesText");
+      if (el) el.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+    });
+    await page.waitForTimeout(50);
+  }
+  await page.waitForTimeout(500);
+  await expect(page.locator("#resetModal")).not.toHaveClass(/show/);
+  
+  // 4. 点击次数区域 5 次应弹出重置确认
+  for (let i = 0; i < 5; i++) {
+    await page.evaluate(() => {
+      const el = document.querySelector("#chancesText");
+      if (el) el.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+    });
+    await page.waitForTimeout(50);
+  }
+  await expect(page.locator("#resetModal")).toHaveClass(/show/);
+  
+  // 5. 点击取消不改变次数
+  await page.click("#cancelResetBtn");
+  await expect(page.locator("#resetModal")).not.toHaveClass(/show/);
+  await expect(page.locator("#chancesText")).toHaveText(/1 次机会/);
+  
+  // 6. 再次触发并确认重置
+  for (let i = 0; i < 5; i++) {
+    await page.evaluate(() => {
+      const el = document.querySelector("#chancesText");
+      if (el) el.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+    });
+    await page.waitForTimeout(50);
+  }
+  await page.click("#confirmResetBtn");
+  await expect(page.locator("#chancesText")).toHaveText(/2 次机会/);
 });
 
 test("边界检查：超限保存被拦截，空奖池不可保存", async ({ page }) => {

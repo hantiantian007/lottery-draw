@@ -356,36 +356,34 @@ button,
 }
 
 /* 覆盖原有的默认样式，添加独立抽奖页主题 */
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
 body.lottery-theme {
   background-color: #c026d3;
-  background-image: 
-    radial-gradient(circle at center, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 100%),
-    url('./images/lottery-bg-mobile.webp');
-  background-size: cover, cover;
-  background-position: center, center;
-  background-attachment: fixed, fixed;
-  background-repeat: no-repeat, no-repeat;
+  background-image: radial-gradient(circle at center, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 100%),
+                    linear-gradient(135deg, #be123c 0%, #e11d48 30%, #ea580c 100%);
   color: #fff;
-  margin: 0;
-  height: 100vh;
-  /* 确保安全区域内撑满全屏，防止白边 */
-  height: -webkit-fill-available;
-  overflow: hidden;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
 }
 @media (min-width: 768px) and (orientation: portrait) {
   body.lottery-theme {
-    background-image: 
-      radial-gradient(circle at center, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 100%),
-      url('./images/lottery-bg-tablet-portrait.webp');
+    background-image: radial-gradient(circle at center, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 100%),
+                      linear-gradient(135deg, #9f1239 0%, #be123c 30%, #ea580c 100%);
   }
 }
 @media (min-width: 768px) and (orientation: landscape) {
   body.lottery-theme {
-    background-image: 
-      radial-gradient(circle at center, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 100%),
-      url('./images/lottery-bg-tablet-landscape.webp');
+    background-image: radial-gradient(circle at center, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 100%),
+                      linear-gradient(135deg, #be123c 0%, #e11d48 40%, #ea580c 100%);
   }
 }
 body.lottery-theme .lottery-page {
@@ -393,7 +391,8 @@ body.lottery-theme .lottery-page {
   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   display: flex;
   flex-direction: column;
-  height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
   background: transparent;
   box-shadow: none;
   box-sizing: border-box;
@@ -410,6 +409,10 @@ body.lottery-theme .lottery-page {
   color: #fef08a;
   font-weight: 800;
   text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 .settings-icon-link {
   color: #fef08a;
@@ -489,6 +492,33 @@ body.lottery-theme .lottery-page {
   object-fit: contain;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
   transition: transform 0.2s;
+  /* 加载失败兜底样式 */
+  color: transparent;
+  position: relative;
+}
+/* 当图片加载失败时，利用伪元素覆盖破图图标并绘制一个简易红包 */
+.prize-icon-img::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, #ef4444, #be123c);
+  border-radius: 8px;
+  border: 2px solid #fef08a;
+  box-sizing: border-box;
+}
+.prize-icon-img::after {
+  content: "";
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50%;
+  height: 20%;
+  background: #f43f5e;
+  border-radius: 0 0 50% 50%;
 }
 @media (min-width: 768px) {
   .prize-icon-img {
@@ -555,6 +585,10 @@ body.lottery-theme .lottery-page {
   color: #fef08a;
   text-shadow: 0 1px 2px rgba(0,0,0,0.5);
   font-weight: bold;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body.lottery-theme .modal-card {
