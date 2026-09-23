@@ -141,7 +141,7 @@ test("隐藏手势：3秒5次点击重置抽奖次数与跳转设置页", async 
   await expect(page).toHaveURL(/settings\.html$/);
   await page.click("#cancelButton");
   
-  // 3. 点击次数区域 4 次不应弹窗
+  // 3. 点击次数区域 4 次不应弹窗或重置
   for (let i = 0; i < 4; i++) {
     await page.evaluate(() => {
       const el = document.querySelector("#chancesText");
@@ -150,24 +150,9 @@ test("隐藏手势：3秒5次点击重置抽奖次数与跳转设置页", async 
     await page.waitForTimeout(50);
   }
   await page.waitForTimeout(500);
-  await expect(page.locator("#resetModal")).not.toHaveClass(/show/);
-  
-  // 4. 点击次数区域 5 次应弹出重置确认
-  for (let i = 0; i < 5; i++) {
-    await page.evaluate(() => {
-      const el = document.querySelector("#chancesText");
-      if (el) el.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
-    });
-    await page.waitForTimeout(50);
-  }
-  await expect(page.locator("#resetModal")).toHaveClass(/show/);
-  
-  // 5. 点击取消不改变次数
-  await page.click("#cancelResetBtn");
-  await expect(page.locator("#resetModal")).not.toHaveClass(/show/);
   await expect(page.locator("#chancesText")).toHaveText(/1 次机会/);
   
-  // 6. 再次触发并确认重置
+  // 4. 点击次数区域 5 次应直接重置次数
   for (let i = 0; i < 5; i++) {
     await page.evaluate(() => {
       const el = document.querySelector("#chancesText");
@@ -175,8 +160,8 @@ test("隐藏手势：3秒5次点击重置抽奖次数与跳转设置页", async 
     });
     await page.waitForTimeout(50);
   }
-  await page.click("#confirmResetBtn");
   await expect(page.locator("#chancesText")).toHaveText(/2 次机会/);
+  await expect(page.locator("#toast")).toHaveText("抽奖次数已重置");
 });
 
 test("边界检查：超限保存被拦截，空奖池不可保存", async ({ page }) => {

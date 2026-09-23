@@ -29,14 +29,9 @@ let chancesClickTimer = null;
 function setupSecretGestures() {
   const activityTitle = document.getElementById("activityTitle");
   const chancesText = document.getElementById("chancesText");
-  const resetModal = document.getElementById("resetModal");
-  const resetModalTargetCount = document.getElementById("resetModalTargetCount");
-  const cancelResetBtn = document.getElementById("cancelResetBtn");
-  const confirmResetBtn = document.getElementById("confirmResetBtn");
   
   function isModalOpen() {
-    return document.getElementById("resultModal").classList.contains("show") ||
-           (resetModal && resetModal.classList.contains("show"));
+    return document.getElementById("resultModal").classList.contains("show");
   }
 
   // 标题隐藏点击：跳转设置
@@ -58,7 +53,7 @@ function setupSecretGestures() {
     });
   }
 
-  // 次数区域隐藏点击：重置次数
+  // 次数区域隐藏点击：直接重置次数
   if (chancesText) {
     chancesText.addEventListener("pointerdown", (e) => {
       if (spinning || isModalOpen()) return;
@@ -69,41 +64,20 @@ function setupSecretGestures() {
       if (chancesClickCount >= SECRET_CLICKS_NEEDED) {
         chancesClickCount = 0;
         
-        // 显示重置确认弹窗
-        if (resetModalTargetCount) {
-          resetModalTargetCount.textContent = config.initialChances || 0;
-        }
-        if (resetModal) {
-          resetModal.classList.add("show");
+        // 执行重置逻辑
+        config.remainingChances = config.initialChances || 0;
+        const saveRes = saveConfig(config);
+        
+        if (saveRes && saveRes.ok === false) {
+          showToast(saveRes.message || "保存失败");
+        } else {
+          showToast(`抽奖次数已重置`);
+          updateChancesUI();
         }
       } else {
         chancesClickTimer = setTimeout(() => {
           chancesClickCount = 0;
         }, SECRET_TIMEOUT_MS);
-      }
-    });
-  }
-
-  // 重置确认弹窗操作
-  if (cancelResetBtn) {
-    cancelResetBtn.addEventListener("click", () => {
-      resetModal.classList.remove("show");
-    });
-  }
-
-  if (confirmResetBtn) {
-    confirmResetBtn.addEventListener("click", () => {
-      resetModal.classList.remove("show");
-      
-      // 执行重置逻辑
-      config.remainingChances = config.initialChances || 0;
-      const saveRes = saveConfig(config);
-      
-      if (saveRes && saveRes.ok === false) {
-        showToast(saveRes.message || "保存失败");
-      } else {
-        showToast(`抽奖次数已重置为 ${config.remainingChances} 次`);
-        updateChancesUI();
       }
     });
   }
