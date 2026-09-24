@@ -13,15 +13,15 @@
         <h1 id="activityTitle">韩梓墨专属抽奖</h1>
       </header>
 
-      <section class="marquee-container">
-        <div class="marquee-grid" id="marqueeGrid">
-          <!-- Cards rendered by JS -->
+      <section class="wheel-area" style="margin-top: 30px; position: relative; z-index: 10;">
+        <div class="wheel-shell" id="wheelShell">
+          <div class="wheel-pointer"></div>
+          <div class="wheel" id="wheel">
+            <!-- Cards rendered by JS -->
+          </div>
+          <button id="spinButton" class="wheel-center" type="button">开始抽奖</button>
         </div>
-      </section>
-
-      <section class="action-container">
-        <button id="spinButton" class="btn-primary" type="button">开始抽奖</button>
-        <p id="chancesText" class="chances-text">今日剩余 3 次机会</p>
+        <p id="chancesText" class="chances-text" style="margin-top: 24px; text-align: center;">今日剩余 3 次机会</p>
       </section>
     </main>
 

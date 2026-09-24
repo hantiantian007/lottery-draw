@@ -3,7 +3,7 @@ import { getDisplaySegments, loadConfig, pickOutcome, saveConfig } from "./logic
 const titleElement = document.querySelector("#activityTitle");
 const spinButton = document.querySelector("#spinButton");
 const chancesText = document.querySelector("#chancesText");
-const grid = document.querySelector("#marqueeGrid");
+const wheel = document.querySelector("#wheel");
 const toast = document.querySelector("#toast");
 const modal = document.querySelector("#resultModal");
 const modalTitle = document.querySelector("#modalTitle");
@@ -120,13 +120,44 @@ function bindReducedMotionChange(handler) {
   }
 }
 
-function renderGrid(segments) {
-  grid.innerHTML = segments.map((seg, idx) => `
-    <div class="prize-card" id="card-${idx}">
-      <div class="prize-icon-wrapper"><img class="prize-icon-img" src="${seg.icon}" alt="奖品红包"></div>
-      <div class="prize-name">${seg.label}</div>
-    </div>
-  `).join('');
+let currentRotation = window.__currentRotation || 0;
+
+function renderWheel(segments) {
+  const total = segments.length;
+  const colors = ['#A52336', '#F7EEDC', '#7899B4'];
+  const textColorMap = {
+    '#A52336': '#F7EEDC',
+    '#F7EEDC': '#20384B',
+    '#7899B4': '#F7EEDC'
+  };
+  
+  let gradientStops = [];
+  const anglePerSegment = 360 / total;
+  for (let i = 0; i < total; i++) {
+    const color = colors[i % colors.length];
+    const startAngle = i * anglePerSegment;
+    const endAngle = startAngle + anglePerSegment;
+    gradientStops.push(`${color} ${startAngle}deg ${endAngle}deg`);
+  }
+  
+  wheel.style.background = `conic-gradient(from ${-anglePerSegment / 2}deg, ${gradientStops.join(', ')})`;
+  
+  wheel.innerHTML = segments.map((seg, idx) => {
+    const bgColor = colors[idx % colors.length];
+    const textColor = textColorMap[bgColor];
+    const rotation = idx * anglePerSegment;
+    return `
+      <div class="wheel-item" style="transform: rotate(${rotation}deg);">
+        <img class="wheel-item-icon" src="${seg.icon}" alt="红包">
+        <div class="wheel-item-name" style="color: ${textColor};">${seg.label}</div>
+      </div>
+    `;
+  }).join('');
+  
+  wheel.style.transition = 'none';
+  wheel.style.transform = `rotate(${currentRotation}deg)`;
+  // force reflow
+  wheel.offsetHeight;
 }
 
 function updateChancesUI() {
@@ -147,45 +178,35 @@ function render() {
   config = loadConfig();
   const segments = getDisplaySegments(config);
   titleElement.textContent = config.title;
-  renderGrid(segments);
+  renderWheel(segments);
   updateChancesUI();
-  
-  if (window.__lastActiveIndex !== undefined) {
-    const card = document.getElementById(`card-${window.__lastActiveIndex}`);
-    if (card) card.classList.add('active');
-  }
 }
 
-async function animateMarquee(targetIndex, totalSegments) {
-  const minLoops = reducedMotion.matches ? 1 : 4;
-  const minSteps = totalSegments * minLoops + targetIndex;
-  let currentStep = window.__lastActiveIndex || 0;
-  const targetStep = currentStep + minSteps;
-  
+async function animateWheel(targetIndex, totalSegments) {
   return new Promise(resolve => {
-    function step() {
-      document.querySelectorAll('.prize-card').forEach(c => c.classList.remove('active'));
-      const activeIndex = currentStep % totalSegments;
-      const card = document.getElementById(`card-${activeIndex}`);
-      if (card) card.classList.add('active');
-      
-      if (currentStep >= targetStep) {
-        window.__lastActiveIndex = activeIndex;
-        resolve();
-        return;
-      }
-      
-      currentStep++;
-      const remaining = targetStep - currentStep;
-      let delay = 30;
-      if (!reducedMotion.matches) {
-        if (remaining < 10) delay = 50 + (10 - remaining) * 30;
-        if (remaining < 4) delay = 150 + (4 - remaining) * 100;
-      }
-      
-      setTimeout(step, delay);
+    const anglePerSegment = 360 / totalSegments;
+    const targetAngle = 360 - (targetIndex * anglePerSegment);
+    
+    const spins = reducedMotion.matches ? 1 : 5;
+    const baseRotation = Math.floor(currentRotation / 360) * 360;
+    let nextRotation = baseRotation + (spins * 360) + targetAngle;
+    
+    if (nextRotation <= currentRotation) {
+      nextRotation += 360;
     }
-    step();
+    
+    currentRotation = nextRotation;
+    window.__currentRotation = currentRotation;
+    
+    wheel.style.transition = reducedMotion.matches 
+      ? 'transform 1s ease-out' 
+      : 'transform 5s cubic-bezier(0.25, 0.1, 0.25, 1)';
+    wheel.style.transform = `rotate(${currentRotation}deg)`;
+    
+    const duration = reducedMotion.matches ? 1000 : 5000;
+    setTimeout(() => {
+      resolve();
+    }, duration + 50);
   });
 }
 
@@ -206,7 +227,7 @@ async function handleSpin() {
   spinButton.disabled = true;
   spinButton.textContent = "抽奖中...";
 
-  await animateMarquee(outcomeInfo.segmentIndex, outcomeInfo.segments.length);
+  await animateWheel(outcomeInfo.segmentIndex, outcomeInfo.segments.length);
 
   const isThanks = outcomeInfo.outcome.isThanks;
   const title = isThanks ? "谢谢惠顾" : "恭喜中奖";
